@@ -1,6 +1,6 @@
 from imutils.video import VideoStream
 from imutils import face_utils
-#from threading import Thread
+from threading import Thread
 import numpy as np
 import playsound
 import time
@@ -28,8 +28,8 @@ def aspectRatio(eye):
 
 
 counter = 0  # To count number of consec frames eyes are closed
-#is_alarm_on = False
-detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Less accurate but cheaper
+is_alarm_on = False
+detector = cv2.CascadeClassifier('lbpcascade_frontalface.xml')  # Less accurate but cheaper
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 (leftStart, leftEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]  # Gets left eye indices
 (rightStart, rightEnd) = face_utils.FACIAL_LANDMARKS_IDXS["right_eye"]  # Gets right eye indices
@@ -64,11 +64,11 @@ while True:
             print(counter)
             if counter >= MAX_CONSEC_FRAMES:  # If eyes are closed for long enough
                 # if the alarm is not on, turn it on
-                #if not is_alarm_on:
-                    #is_alarm_on = True
-                    #t = Thread(target=wakeUp, args=("weewoo.wav",))  # Separate thread so scanning isn't interrupted
-                    #t.daemon = True  # Daemon threads kill themselves automatically so we don't have to bother
-                    #t.start()
+                if not is_alarm_on:
+                    is_alarm_on = True
+                    t = Thread(target=wakeUp, args=("weewoo.wav",))  # Separate thread so scanning isn't interrupted
+                    t.daemon = True  # Daemon threads kill themselves automatically so we don't have to bother
+                    t.start()
                 # Write alert on the screen
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 text = "YOU'RE DOZING!"
@@ -78,7 +78,7 @@ while True:
                 cv2.putText(frame, text, (textX, textY), font, 2.5, (0, 0, 255), 12)
         else:  # If not, reset counter and turn off the alarm
             counter = 0
-            #is_alarm_on = False
+            is_alarm_on = False
     cv2.imshow("Frame", frame)  # Display the frame
     key = cv2.waitKey(1) & 0xFF  # Bitmask 0b11111111 applied
     if key == ord("q"):  # If input is 'q'
